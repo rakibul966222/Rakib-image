@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAKIB AI | Professional AI Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Hind+Siliguri:wght@300;500;700&display=swap');
+        
+        :root { --bg: #010409; --glass: rgba(13, 17, 23, 0.85); --border: #30363d; --accent: #21ccff; }
+        body { background: var(--bg); color: #e6edf3; font-family: 'Hind Siliguri', sans-serif; overflow-x: hidden; }
+        .font-orbit { font-family: 'Orbitron', sans-serif; }
+        .glass { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--border); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: slideUp 0.4s ease; }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="authScreen" class="fixed inset-0 z-[100] bg-[#0d1117] flex items-center justify-center p-4">
+        <div class="max-w-md w-full glass p-8 rounded-[2.5rem] shadow-2xl border-blue-500/20 border">
+            <h1 class="text-3xl font-bold text-center mb-6 font-orbit text-blue-500 tracking-widest">RAKIB AI</h1>
+            
+            <div id="registerForm" class="space-y-4">
+                <input id="regFullName" type="text" placeholder="আপনার পূর্ণ নাম" class="w-full bg-slate-900/50 p-3 rounded-xl border border-slate-700 outline-none focus:border-blue-500">
+                <input id="regPic" type="text" placeholder="প্রোফাইল ছবির লিঙ্ক (URL)" class="w-full bg-slate-900/50 p-3 rounded-xl border border-slate-700 outline-none focus:border-blue-500">
+                <input id="regUser" type="text" placeholder="ইউজারনেম" class="w-full bg-slate-900/50 p-3 rounded-xl border border-slate-700 outline-none focus:border-blue-500">
+                <input id="regPass" type="password" placeholder="পাসওয়ার্ড" class="w-full bg-slate-900/50 p-3 rounded-xl border border-slate-700 outline-none focus:border-blue-500">
+                <div class="flex flex-col">
+                    <label class="text-[10px] text-slate-500 ml-2 mb-1 uppercase">জন্ম তারিখ</label>
+                    <input id="regDob" type="date" class="w-full bg-slate-900/50 p-3 rounded-xl border border-slate-700 outline-none text-slate-400">
+                </div>
+                <label class="flex items-center gap-2 text-xs text-slate-400 px-1 cursor-pointer">
+                    <input type="checkbox" id="regAgree" class="rounded border-slate-700 bg-slate-900"> আমি শর্তাবলীতে একমত
+                </label>
+                <button onclick="handleAuth('register')" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/20">অ্যাকাউন্ট তৈরি করুন</button>
+                <p class="text-center text-sm text-slate-500">অ্যাকাউন্ট আছে? <button onclick="toggleAuth(true)" class="text-blue-400 font-bold">লগইন করুন</button></p>
+            </div>
+
+            <div id="loginForm" class="space-y-4 hidden">
+                <input id="loginUser" type="text" placeholder="ইউজারনেম" class="w-full bg-slate-900/50 p-3 rounded-xl border border-slate-700 outline-none focus:border-blue-500">
+                <input id="loginPass" type="password" placeholder="পাসওয়ার্ড" class="w-full bg-slate-900/50 p-3 rounded-xl border border-slate-700 outline-none focus:border-blue-500">
+                <button onclick="handleAuth('login')" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-bold transition-all">লগইন করুন</button>
+                <p class="text-center text-sm text-slate-500">নতুন ইউজার? <button onclick="toggleAuth(false)" class="text-indigo-400 font-bold">রেজিস্ট্রেশন করুন</button></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden min-h-screen">
+        <nav class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <img id="navUserPic" src="" class="w-10 h-10 rounded-full border-2 border-blue-500 object-cover bg-slate-800">
+                <div>
+                    <p id="navUserName" class="text-xs font-bold leading-tight text-white"></p>
+                    <p id="navUserPlan" class="text-[9px] text-blue-400 font-bold uppercase tracking-tighter">FREE PLAN</p>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex gap-6 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <button onclick="switchTab('gen')" class="hover:text-blue-400 transition">তৈরি</button>
+                <button onclick="switchTab('gallery')" class="hover:text-blue-400 transition">গ্যালারি</button>
+                <button onclick="switchTab('pricing')" class="hover:text-yellow-400 transition">প্ল্যান</button>
+                <button onclick="switchTab('history')" class="hover:text-blue-400 transition">হিস্টোরি</button>
+                <button onclick="switchTab('about')" class="hover:text-blue-400 transition">এবাউট</button>
+            </div>
+
+            <button onclick="logout()" class="text-slate-500 hover:text-red-500 transition-colors"><i class="fas fa-power-off"></i></button>
+        </nav>
+
+        <div class="max-w-6xl mx-auto px-6 mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass p-4 rounded-2xl text-center border-blue-500/10">
+                <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">মোট ইমেজ</p>
+                <h3 id="statTotal" class="text-xl font-orbit font-bold text-blue-400">0</h3>
+            </div>
+            <div class="glass p-4 rounded-2xl text-center border-green-500/10">
+                <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">আজকের লিমিট</p>
+                <h3 id="statToday" class="text-xl font-orbit font-bold text-green-500">0/0</h3>
+            </div>
+            <div class="glass p-4 rounded-2xl text-center border-purple-500/10">
+                <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">এই মাসে</p>
+                <h3 id="statMonth" class="text-xl font-orbit font-bold text-purple-400">0</h3>
+            </div>
+            <div class="glass p-4 rounded-2xl text-center border-yellow-500/10">
+                <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">মেয়াদ</p>
+                <h3 id="statExpiry" class="text-xs font-bold text-yellow-500 mt-1 uppercase">Unlimited</h3>
+            </div>
+        </div>
+
+        <main class="max-w-6xl mx-auto p-6">
+            
+            <section id="genTab" class="tab-content active">
+                <div class="glass p-6 rounded-[2.5rem] mb-8 border-white/5 shadow-2xl">
+                    <textarea id="promptInput" class="w-full bg-slate-900/50 border border-slate-800 p-5 rounded-3xl h-36 outline-none focus:border-blue-500 transition-all text-sm leading-relaxed" placeholder="আপনার কল্পনার ছবিটির বর্ণনা এখানে লিখুন..."></textarea>
+                    <button onclick="generateImage()" id="genBtn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 py-4 mt-4 rounded-2xl font-bold font-orbit tracking-widest hover:scale-[1.01] active:scale-95 transition-all">GENERATE IMAGE</button>
+                    
+                    <div id="loader" class="hidden mt-6 text-center">
+                        <div class="flex justify-between text-[10px] mb-2 text-blue-400 font-orbit"><span>এআই প্রসেসিং হচ্ছে...</span><span id="loadPercent">0%</span></div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden"><div id="progressBar" class="bg-blue-500 h-full w-0 transition-all"></div></div>
+                    </div>
+                </div>
+
+                <div id="resultBox" class="hidden glass p-5 rounded-[2.5rem] text-center border-blue-500/30">
+                    <img id="outputImg" class="w-full rounded-3xl mb-5 shadow-2xl border border-white/5" src="">
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button onclick="makePublic()" class="bg-slate-800 hover:bg-slate-700 px-6 py-2.5 rounded-xl text-xs font-bold transition"><i class="fas fa-share-alt mr-2"></i> গ্যালারিতে পাবলিশ</button>
+                        <a id="downloadBtn" download="rakib-ai-image.jpg" class="bg-green-600 hover:bg-green-700 px-8 py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-green-900/20"><i class="fas fa-download mr-2"></i> ডাউনলোড</a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="galleryTab" class="tab-content">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold font-orbit text-blue-400 tracking-wider">পাবলিক গ্যালারি</h2>
+                </div>
+                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+            </section>
+
+            <section id="historyTab" class="tab-content">
+                <h2 class="text-2xl font-bold font-orbit mb-8">আপনার জেনারেশন হিস্টোরি</h2>
+                <div id="historyGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    </div>
+            </section>
+
+            <section id="pricingTab" class="tab-content">
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                    <div class="glass p-8 rounded-[2.5rem] text-center border-blue-500/20">
+                        <h3 class="font-bold text-slate-400 uppercase text-xs tracking-widest">বেসিক প্ল্যান</h3>
+                        <p class="text-4xl font-bold my-4 font-orbit">৳১০০ <span class="text-xs text-slate-500">/মাস</span></p>
+                        <ul class="text-sm text-slate-400 space-y-3 mb-8">
+                            <li><i class="fas fa-check-circle text-blue-500 mr-2"></i> দৈনিক ৫০টি ছবি</li>
+                            <li><i class="fas fa-check-circle text-blue-500 mr-2"></i> সাধারণ স্পিড</li>
+                            <li><i class="fas fa-check-circle text-blue-500 mr-2"></i> ১ মাসের মেয়াদ</li>
+                        </ul>
+                        <button onclick="openPay('Basic', 100)" class="w-full bg-slate-800 py-3 rounded-xl font-bold hover:bg-blue-600 transition">কিনুন</button>
+                    </div>
+                    <div class="glass p-8 rounded-[2.5rem] text-center border-blue-500 relative scale-105 shadow-2xl shadow-blue-500/10">
+                        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-[10px] px-4 py-1 rounded-full font-bold">জনপ্রিয়</span>
+                        <h3 class="font-bold text-slate-400 uppercase text-xs tracking-widest">প্রো প্ল্যান</h3>
+                        <p class="text-4xl font-bold my-4 font-orbit">৳২০০ <span class="text-xs text-slate-500">/মাস</span></p>
+                        <ul class="text-sm text-slate-400 space-y-3 mb-8">
+                            <li><i class="fas fa-check-circle text-blue-500 mr-2"></i> দৈনিক ১৫০টি ছবি</li>
+                            <li><i class="fas fa-check-circle text-blue-500 mr-2"></i> সুপার ফাস্ট স্পিড</li>
+                            <li><i class="fas fa-check-circle text-blue-500 mr-2"></i> ১ মাসের মেয়াদ</li>
+                        </ul>
+                        <button onclick="openPay('Pro', 200)" class="w-full bg-blue-600 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30">কিনুন</button>
+                    </div>
+                    <div class="glass p-8 rounded-[2.5rem] text-center border-yellow-500/20">
+                        <h3 class="font-bold text-slate-400 uppercase text-xs tracking-widest">আলটিমেট প্ল্যান</h3>
+                        <p class="text-4xl font-bold my-4 font-orbit">৳৫০০ <span class="text-xs text-slate-500">/মাস</span></p>
+                        <ul class="text-sm text-slate-400 space-y-3 mb-8">
+                            <li><i class="fas fa-check-circle text-yellow-500 mr-2"></i> আনলিমিটেড ছবি</li>
+                            <li><i class="fas fa-check-circle text-yellow-500 mr-2"></i> ভিআইপি সাপোর্ট</li>
+                            <li><i class="fas fa-check-circle text-yellow-500 mr-2"></i> ১ মাসের মেয়াদ</li>
+                        </ul>
+                        <button onclick="openPay('Ultimate', 500)" class="w-full bg-slate-800 py-3 rounded-xl font-bold hover:bg-yellow-600 transition">কিনুন</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="aboutTab" class="tab-content">
+                <div class="glass p-12 rounded-[3.5rem] text-center max-w-2xl mx-auto border-white/5">
+                    <div class="w-24 h-24 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-3xl mx-auto mb-8 flex items-center justify-center text-4xl font-bold shadow-2xl rotate-3">R</div>
+                    <h2 class="text-3xl font-bold mb-4 font-orbit">রাকিবুল (Rakibul)</h2>
+                    <p class="text-blue-400 font-bold text-sm mb-6 uppercase tracking-[0.3em]">Developer & AI Expert</p>
+                    <p class="text-slate-400 leading-relaxed mb-8">
+                        আসসালামু আলাইকুম। আমি <b>রাকিবুল</b>। আমি ওয়েবসাইট তৈরি করতে পছন্দ করি এবং এআই (AI) টেকনোলজি নিয়ে কাজ করি। পাশাপাশি আমি পড়াশোনা করছি। আমার লক্ষ্য হলো এআই এর মাধ্যমে নতুন নতুন উদ্ভাবনী কাজ করা এবং সহজভাবে সবার কাছে প্রযুক্তি পৌঁছে দেওয়া।
+                    </p>
+                    <div class="flex justify-center gap-8 text-2xl text-slate-500">
+                        <i class="fab fa-facebook hover:text-blue-500 cursor-pointer transition"></i>
+                        <i class="fab fa-github hover:text-white cursor-pointer transition"></i>
+                        <i class="fab fa-whatsapp hover:text-green-500 cursor-pointer transition"></i>
+                    </div>
+                </div>
+            </section>
+
+            <section id="adminTab" class="tab-content">
+                <h2 class="text-2xl font-bold text-red-500 font-orbit mb-8">এডমিন কন্ট্রোল প্যানেল</h2>
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div class="glass p-6 rounded-3xl">
+                        <h3 class="font-bold mb-4 flex justify-between">ইউজার লিস্ট <span id="admTotalUsers" class="text-blue-400">0</span></h3>
+                        <div class="overflow-hidden rounded-xl">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-800 text-slate-400 uppercase">
+                                    <tr><th class="p-3">ইউজার</th><th class="p-3">প্ল্যান</th><th class="p-3">অ্যাকশন</th></tr>
+                                </thead>
+                                <tbody id="adminUserList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-3xl">
+                        <h3 class="font-bold mb-4">পেমেন্ট রিকোয়েস্টসমূহ</h3>
+                        <div id="adminPayRequests" class="space-y-3">
+                            </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="payModal" class="fixed inset-0 z-[110] bg-black/95 hidden flex items-center justify-center p-4">
+        <div class="max-w-md w-full glass p-8 rounded-[2.5rem] text-center border-white/10">
+            <div class="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl"><i class="fas fa-wallet"></i></div>
+            <h2 class="text-xl font-bold mb-2">পেমেন্ট সম্পন্ন করুন</h2>
+            <p class="text-xs text-slate-500 mb-6 leading-relaxed">নিচের নম্বরে টাকা পাঠিয়ে Transaction ID দিন:<br><span class="text-blue-400 font-bold text-lg select-all">01941429881</span> (Bkash/Nagad)</p>
+            <input id="trxInput" type="text" placeholder="Transaction ID (যেমন: 8N3JK2...)" class="w-full bg-slate-900 p-4 rounded-2xl outline-none mb-6 border border-slate-700 focus:border-blue-500">
+            <button onclick="submitPayment()" class="w-full bg-green-600 hover:bg-green-700 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-green-900/20">অনুরোধ পাঠান</button>
+            <button onclick="document.getElementById('payModal').classList.add('hidden')" class="mt-4 text-slate-500 text-xs hover:text-white transition">বাতিল করুন</button>
+        </div>
+    </div>
+
+    <div onclick="requestAdmin()" class="fixed bottom-4 left-4 w-4 h-4 opacity-10 cursor-pointer"></div>
+
+    <script>
+        let userData = null;
+        let lastGeneratedImg = null;
+
+        // অ্যাপ স্টার্ট লজিক
+        window.onload = () => {
+            const saved = localStorage.getItem('rakib_session');
+            if(saved) {
+                userData = JSON.parse(saved);
+                startDashboard();
+            }
+        };
+
+        function toggleAuth(isLogin) {
+            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+            document.getElementById('registerForm').classList.toggle('hidden', isLogin);
+        }
+
+        // রেজিস্ট্রেশন এবং লগইন
+        async function handleAuth(type) {
+            if(type === 'register') {
+                const fullName = document.getElementById('regFullName').value;
+                const username = document.getElementById('regUser').value;
+                const password = document.getElementById('regPass').value;
+                const dob = document.getElementById('regDob').value;
+                const profilePic = document.getElementById('regPic').value;
+                const agree = document.getElementById('regAgree').checked;
+
+                if(!agree || !username || !password) return alert("সব তথ্য সঠিকভাবে পূরণ করুন এবং এগ্রিমেন্টে টিক দিন!");
+
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ fullName, username, password, dob, profilePic })
+                });
+                const data = await res.json();
+                if(data.success) { alert("রেজিস্ট্রেশন সফল! এখন লগইন করুন।"); toggleAuth(true); }
+                else alert(data.message);
+            } else {
+                const username = document.getElementById('loginUser').value;
+                const password = document.getElementById('loginPass').value;
+
+                if(!username || !password) return alert("ইউজারনেম এবং পাসওয়ার্ড দিন!");
+
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    userData = data.user;
+                    localStorage.setItem('rakib_session', JSON.stringify(userData));
+                    startDashboard();
+                } else alert(data.message);
+            }
+        }
+
+        async function startDashboard() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            updateUserUI();
+            switchTab('gen');
+        }
+
+        async function updateUserUI() {
+            const res = await fetch('/admin/data');
+            const db = await res.json();
+            const me = db.users.find(u => u.username === userData.username);
+            
+            if(!me) return logout();
+
+            document.getElementById('navUserPic').src = me.profilePic || 'https://via.placeholder.com/100';
+            document.getElementById('navUserName').innerText = me.fullName;
+            document.getElementById('navUserPlan').innerText = me.plan + " PLAN";
+            
+            document.getElementById('statTotal').innerText = me.total_generated;
+            document.getElementById('statToday').innerText = `${me.used_today}/${me.daily_limit}`;
+            document.getElementById('statMonth').innerText = me.used_this_month;
+            document.getElementById('statExpiry').innerText = me.expiry;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId + 'Tab').classList.add('active');
+            if(tabId === 'history') loadHistory();
+            if(tabId === 'gallery') loadGallery();
+        }
+
+        // ইমেজ জেনারেশন
+        async function generateImage() {
+            const prompt = document.getElementById('promptInput').value;
+            if(!prompt) return alert("কিছু লিখুন!");
+
+            const btn = document.getElementById('genBtn');
+            const loader = document.getElementById('loader');
+            const prog = document.getElementById('progressBar');
+            const perc = document.getElementById('loadPercent');
+
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            
+            let p = 0;
+            const iv = setInterval(() => {
+                if(p < 90) {
+                    p += Math.random() * 5;
+                    prog.style.width = p + '%';
+                    perc.innerText = Math.floor(p) + '%';
+                }
+            }, 400);
+
+            try {
+                const res = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: userData.username, prompt })
+                });
+                const data = await res.json();
+                clearInterval(iv);
+                if(data.success) {
+                    prog.style.width = '100%';
+                    perc.innerText = '100%';
+                    lastGeneratedImg = data.image;
+                    document.getElementById('resultBox').classList.remove('hidden');
+                    document.getElementById('outputImg').src = data.image.url;
+                    document.getElementById('downloadBtn').href = data.image.url;
+                    updateUserUI();
+                } else alert(data.message);
+            } catch(e) {
+                alert("সার্ভার এরর!");
+            } finally {
+                btn.disabled = false;
+                setTimeout(() => loader.classList.add('hidden'), 1000);
+            }
+        }
+
+        // গ্যালারি এবং হিস্টোরি
+        async function loadHistory() {
+            const res = await fetch('/admin/data');
+            const db = await res.json();
+            const myImgs = db.images.filter(i => i.owner === userData.username).reverse();
+            document.getElementById('historyGrid').innerHTML = myImgs.map(i => `
+                <div class="glass p-2 rounded-2xl">
+                    <img src="${i.url}" class="w-full h-32 object-cover rounded-xl mb-1">
+                    <p class="text-[7px] text-slate-500">${new Date(i.date).toLocaleDateString()}</p>
+                </div>
+            `).join('');
+        }
+
+        async function loadGallery() {
+            const res = await fetch('/admin/data');
+            const db = await res.json();
+            const publicImgs = db.images.filter(i => i.isPublic).reverse();
+            document.getElementById('galleryGrid').innerHTML = publicImgs.map(i => `
+                <div class="glass p-4 rounded-3xl space-y-3">
+                    <img src="${i.url}" class="w-full h-60 object-cover rounded-2xl shadow-lg">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">@${i.owner}</p>
+                            <p class="text-[8px] text-slate-500 truncate w-32">${i.prompt}</p>
+                        </div>
+                        <div class="flex gap-2 text-xs text-slate-500">
+                            <i class="far fa-heart"></i>
+                            <i class="far fa-comment"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function makePublic() {
+            if(!lastGeneratedImg) return;
+            await fetch('/share-image', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ imgId: lastGeneratedImg.id })
+            });
+            alert("পাবলিক গ্যালারিতে যোগ করা হয়েছে!");
+        }
+
+        // পেমেন্ট সেকশন
+        function openPay(plan, price) {
+            window.selectedPlan = plan;
+            document.getElementById('payModal').classList.remove('hidden');
+        }
+
+        async function submitPayment() {
+            const trxid = document.getElementById('trxInput').value;
+            if(!trxid) return alert("Transaction ID দিন!");
+            const res = await fetch('/pay-request', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: userData.username, trxid, plan: window.selectedPlan })
+            });
+            const data = await res.json();
+            alert(data.message);
+            document.getElementById('payModal').classList.add('hidden');
+        }
+
+        // অ্যাডমিন ফাংশনস
+        function requestAdmin() {
+            const pass = prompt("অ্যাডমিন কি (Key) দিন:");
+            if(pass === 'rakib') {
+                switchTab('admin');
+                loadAdminPanel();
+            }
+        }
+
+        async function loadAdminPanel() {
+            const res = await fetch('/admin/data');
+            const db = await res.json();
+            document.getElementById('admTotalUsers').innerText = db.users.length;
+            
+            document.getElementById('adminUserList').innerHTML = db.users.map(u => `
+                <tr class="border-b border-white/5">
+                    <td class="p-3"><b>${u.username}</b><br><span class="text-[8px] text-slate-500">${u.total_generated} ইমেজেস</span></td>
+                    <td class="p-3 text-blue-400 font-bold">${u.plan}</td>
+                    <td class="p-3">
+                        <button onclick="adminAction('${u.username}', '${u.status==='active'?'block':'unblock'}')" class="text-orange-500">${u.status==='active'?'ব্লক':'আনব্লক'}</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('adminPayRequests').innerHTML = db.payments.map(p => `
+                <div class="p-4 bg-slate-900/50 rounded-2xl flex justify-between items-center text-[10px]">
+                    <div><b>${p.username}</b> - ${p.plan}<br><span class="text-blue-400">${p.trxid}</span></div>
+                    <button onclick="approvePay('${p.username}', '${p.plan}')" class="bg-blue-600 px-3 py-1.5 rounded-lg font-bold">এপ্রুভ</button>
+                </div>
+            `).join('');
+        }
+
+        async function approvePay(user, planName) {
+            let limit = (planName === 'Pro') ? 150 : (planName === 'Ultimate' ? 9999 : 50);
+            await fetch('/admin/action', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ adminPass: 'rakib', targetUser: user, action: 'approve', planDetails: {name: planName, limit: limit, expiry: '30 Days'} })
+            });
+            loadAdminPanel();
+            alert("প্ল্যান এপ্রুভ করা হয়েছে!");
+        }
+
+        async function adminAction(target, action) {
+            await fetch('/admin/action', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ adminPass: 'rakib', targetUser: target, action })
+            });
+            loadAdminPanel();
+        }
+
+        function logout() {
+            localStorage.removeItem('rakib_session');
+            location.reload();
+        }
+
+        // ডাবল ক্লিকে অ্যাডমিন প্যানেল (বডি এরিয়াতে)
+        document.body.ondblclick = (e) => {
+            if(e.target === document.body || e.target.tagName === 'MAIN') requestAdmin();
+        };
+
+    </script>
+</body>
+</html>
